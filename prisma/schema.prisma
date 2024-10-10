@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id          String        @id
+  email       String        @unique
+  firstName   String
+  lastName    String
+  password    String
+  profile     Profile?
+  appiontment Appiontment[]
+  reccord     Reccord?
+}
+
+model Profile {
+  id                   String   @id
+  phone                String
+  privacyConsent       Boolean  @default(false)
+  gender               String
+  birthDate            String
+  address              String
+  occupation           String
+  emergencyContactName String?
+  emergencyContactNo   String?
+  insuranceProvider    String?
+  insurancePolicyNo    String?
+  allergies            String[]
+  currentMedication    String[]
+  familyMedicalHistory String?
+  pastMedicalHistory   String?
+  identificationType   String?
+  identificationNumber String?
+  identificationDocId  String?
+  identificationDocURL String?
+  primaryPT            Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId             String?
+  owner                Patient  @relation(fields: [ownerId], references: [id])
+  ownerId              String   @unique
+}
+
+model Doctor {
+  id              String        @id
+  email           String        @unique
+  firstName       String
+  lastName        String
+  password        String
+  role            String
+  position        String
+  appiontment     Appiontment[]
+  patientIncharge Profile[]
+}
+
+model Appiontment {
+  id            String   @id
+  name          String
+  description   String
+  scheduledTime DateTime
+  duration      String
+  doctor        Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId      String
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @db.Timestamptz(6)
+  owner         Patient  @relation(fields: [ownerId], references: [id])
+  ownerId       String
+}
+
+model Reccord {
+  id        String   @id
+  name      String
+  folder    String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+  owner     Patient  @relation(fields: [ownerId], references: [id])
+  ownerId   String   @unique
+}
